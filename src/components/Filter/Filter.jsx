@@ -1,15 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default function Filter({ value, change }) {
+export default function Filter({ value, onChange }) {
   return (
     <div>
-      <label htmlFor="">Find contacts by name</label>
-      <input type="text" name="filter" value={value} onChange={change} />
+      <label>
+        {' '}
+        Find contacts by name
+        <input
+          type="text"
+          name="filter"
+          title="Enter first letters or numbers"
+          value={value}
+          onChange={onChange}
+        />
+      </label>
     </div>
   );
 }
+
 Filter.propTypes = {
   value: PropTypes.string,
-  change: PropTypes.func,
+  onChange: PropTypes.func,
 };

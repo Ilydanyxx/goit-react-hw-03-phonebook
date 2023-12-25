@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import ContactForm from './ContactForm/ContactForm';
-import ContactList from './ ContactList/ContactList';
 import Filter from './Filter/Filter';
+import ContactList from './ContactList/ContactList';
 
 export class App extends Component {
   state = {
@@ -12,10 +12,34 @@ export class App extends Component {
       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
     ],
     filter: '',
-    name: '',
-    number: '',
   };
-  change = e => {
+
+  componentDidMount() {
+    try {
+      const savedContacts = localStorage.getItem('contacts');
+      const parsedContacts = JSON.parse(savedContacts);
+      if (parsedContacts) {
+        this.setState({
+          contacts: parsedContacts,
+        });
+      } else {
+        localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+      }
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
+  componentDidUpdate(_, firstState) {
+    if (firstState.contacts !== this.state.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+      this.setState({
+        contacts: this.state.contacts,
+      });
+    }
+  }
+
+  handleChange = e => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
@@ -27,6 +51,15 @@ export class App extends Component {
     });
   };
 
+  searchContact = () => {
+    const normalizedFilter = this.state.filter.toLowerCase().trim();
+    return this.state.contacts.filter(contact => {
+      return `${contact.name}${contact.number}`
+        .toLowerCase()
+        .includes(normalizedFilter);
+    });
+  };
+
   deleteContact = id => {
     this.setState(firstState => {
       return {
@@ -35,14 +68,6 @@ export class App extends Component {
     });
   };
 
-  search = () => {
-    const normalized = this.state.filter.toLowerCase().trim();
-    return this.state.contacts.filter(contact => {
-      return `${contact.name}${contact.number}`
-        .toLowerCase()
-        .includes(normalized);
-    });
-  };
   render() {
     return (
       <div>
@@ -50,13 +75,13 @@ export class App extends Component {
         <ContactForm
           contacts={this.state.contacts}
           addContact={this.addContact}
-          change={this.change}
+          handleChange={this.handleChange}
         />
 
         <h2>Contacts</h2>
-        <Filter value={this.state.filter} change={this.change} />
+        <Filter value={this.state.filter} onChange={this.handleChange} />
         <ContactList
-          contacts={this.search()}
+          contacts={this.searchContact()}
           deleteContact={this.deleteContact}
         />
       </div>
